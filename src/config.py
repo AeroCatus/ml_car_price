@@ -24,8 +24,8 @@ class Paths:
     class Models:
         catboost = project_root / "models" / "catboost"
         catboost.mkdir(parents=True, exist_ok=True)
-        ligjhtgbm = project_root / "models" / "lightgbm"
-        ligjhtgbm.mkdir(parents=True, exist_ok=True)
+        lightgbm = project_root / "models" / "lightgbm"
+        lightgbm.mkdir(parents=True, exist_ok=True)
         xgboost = project_root / "models" / "xgboost"
         xgboost.mkdir(parents=True, exist_ok=True)
 

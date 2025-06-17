@@ -70,8 +70,8 @@ def train_catboost_model(x_train, x_val, y_train, y_val, cat_features):
     model.fit(train_pool, eval_set=val_pool, use_best_model=True, plot=True)
 
     # 保存模型
-    model.save_model(str(Paths.Models.catboost / "fe_catboost_model.cbm"), format="cbm")
-    print("模型已保存到 fe_catboost_model.cbm")
+    model.save_model(str(Paths.Models.catboost / "catboost_model.cbm"), format="cbm")
+    print("模型已保存到 catboost_model.cbm")
 
     return model
 
@@ -105,7 +105,7 @@ def evaluate_model(model, x_val, y_val, cat_features):
     plt.ylabel("预测价格")
     plt.title("CatBoost预测价格 vs 实际价格")
     plt.tight_layout()
-    plt.savefig(str(Paths.Results.plots / "fe_catboost_prediction_vs_actual.png"))
+    plt.savefig(str(Paths.Results.plots / "catboost_prediction_vs_actual.png"))
     plt.close()
 
     return rmse, mae, r2
@@ -115,19 +115,15 @@ def plot_feature_importance(model, x_train):
     """
     绘制特征重要性图
     """
-    # 获取特征重要性
-    feature_importance = model.get_feature_importance()
-    feature_names = x_train.columns
-
     # 创建特征重要性DataFrame
     importance_df = pd.DataFrame(
-        {"feature": feature_names, "importance": feature_importance}
+        {"feature": x_train.columns, "importance": model.get_feature_importance()}
     )
     importance_df = importance_df.sort_values("importance", ascending=False)
 
     # 保存特征重要性到CSV
     importance_df.to_csv(
-        str(Paths.Results.importance / "fe_catboost_feature_importance.csv"),
+        str(Paths.Results.importance / "catboost_feature_importance.csv"),
         index=False,
     )
 
@@ -136,7 +132,7 @@ def plot_feature_importance(model, x_train):
     sns.barplot(x="importance", y="feature", data=importance_df.head(20))
     plt.title("CatBoost Top 20 特征重要性")
     plt.tight_layout()
-    plt.savefig(str(Paths.Results.importance / "fe_catboost_feature_importance.png"))
+    plt.savefig(str(Paths.Results.importance / "catboost_feature_importance.png"))
     plt.close()
 
     return importance_df
@@ -159,9 +155,9 @@ def predict_test_data(model, x_test, test_ids, cat_features):
 
     # 保存预测结果
     submit_data.to_csv(
-        str(Paths.Results.submission / "fe_catboost_submit_result.csv"), index=False
+        str(Paths.Results.submission / "catboost_submit_result.csv"), index=False
     )
-    print("预测结果已保存到 fe_catboost_submit_result.csv")
+    print("预测结果已保存到 catboost_submit_result.csv")
 
 
 def main():
@@ -175,7 +171,7 @@ def main():
 
     # 加载模型
     model = CatBoostRegressor()
-    model.load_model(str(Paths.Models.catboost / "fe_catboost_model.cbm"))
+    model.load_model(str(Paths.Models.catboost / "catboost_model.cbm"))
 
     # 评估模型
     evaluate_model(model, x_val, y_val, cat_features)

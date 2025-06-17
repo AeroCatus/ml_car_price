@@ -3,6 +3,7 @@
 二手车数据探索性分析(EDA)
 """
 
+from config import Paths
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,7 +13,7 @@ plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 
 # 先读取文件的前几行来查看实际内容
 print("原始文件内容预览：")
-with open('used_car_train_20200313.csv', 'r', encoding='utf-8') as f:
+with open(Paths.Data.used_car_train, 'r', encoding='utf-8') as f:
     for i, line in enumerate(f):
         if i < 5:  # 只打印前5行
             print(f"第{i+1}行: {line.strip()}")
@@ -25,7 +26,7 @@ separators = ['\t', ',', ';', '|']
 for sep in separators:
     print(f"\n使用分隔符 '{sep}':")
     try:
-        df = pd.read_csv('used_car_train_20200313.csv', sep=sep, nrows=5)
+        df = pd.read_csv(Paths.Data.used_car_train, sep=sep, nrows=5)
         print(f"列数: {len(df.columns)}")
         print("列名:", df.columns.tolist())
         print("\n数据预览:")
@@ -34,7 +35,7 @@ for sep in separators:
         print(f"使用分隔符 '{sep}' 时出错: {str(e)}")
 
 # 读取训练数据，使用空格分隔符
-train_data = pd.read_csv('used_car_train_20200313.csv', sep=' ', encoding='utf-8')
+train_data = pd.read_csv(Paths.Data.used_car_train, sep=' ', encoding='utf-8')
 
 # 1. 数据概览
 print("\n1. 数据基本信息：")
@@ -82,7 +83,7 @@ if 'price' in train_data.columns:
     plt.title('二手车价格分布')
     plt.xlabel('价格')
     plt.ylabel('频数')
-    plt.savefig('price_distribution.png')
+    plt.savefig(str(Paths.Results.plots / 'price_distribution.png'))
     plt.close()
 
 # 8. 类别型特征分析
@@ -100,7 +101,7 @@ if 'brand' in train_data.columns:
     plt.ylabel('数量')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig('brand_distribution.png')
+    plt.savefig(str(Paths.Results.plots / 'brand_distribution.png'))
     plt.close()
 
 # 9. 相关性分析
@@ -111,7 +112,7 @@ if len(numeric_data.columns) > 1:  # 至少需要两个数值型特征才能计�
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', center=0)
     plt.title('特征相关性热力图')
     plt.tight_layout()
-    plt.savefig('correlation_heatmap.png')
+    plt.savefig(str(Paths.Results.plots / 'correlation_heatmap.png'))
     plt.close()
 
 # 10. 目标变量(price)与其他特征的关系
@@ -124,7 +125,7 @@ if 'price' in train_data.columns:
             sns.scatterplot(data=train_data, x=feature, y='price')
             plt.title(f'{feature}与价格的关系')
             plt.tight_layout()
-            plt.savefig(f'price_vs_{feature}.png')
+            plt.savefig(str(Paths.Results.plots / f'price_vs_{feature}.png'))
             plt.close()
 
 print("\nEDA分析完成！") 
