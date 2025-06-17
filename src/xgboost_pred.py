@@ -3,6 +3,7 @@
 二手车价格预测 - XGBoost建模（直接复用特征工程结果）
 """
 
+from config import Paths
 import pandas as pd
 import numpy as np
 import joblib
@@ -12,25 +13,25 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # 1. 加载特征工程后的数据
-X_train = joblib.load('processed_data/fe_X_train.joblib')
-X_val = joblib.load('processed_data/fe_X_val.joblib')
-y_train = joblib.load('processed_data/fe_y_train.joblib')
-y_val = joblib.load('processed_data/fe_y_val.joblib')
-X_test = joblib.load('processed_data/fe_test_data.joblib')
-test_ids = joblib.load('processed_data/fe_sale_ids.joblib')
+x_train = joblib.load(str(Paths.Features.fe_x_train))
+x_val = joblib.load(str(Paths.Features.fe_x_val))
+y_train = joblib.load(str(Paths.Features.fe_y_train))
+y_val = joblib.load(str(Paths.Features.fe_y_val))
+x_test = joblib.load(str(Paths.Features.fe_test_data))
+test_ids = joblib.load(str(Paths.Features.fe_sale_ids))
 
 # 2. XGBoost训练
 print("开始训练XGBoost模型...")
 
 # XGBoost不支持直接用category类型，需转为int
-for col in X_train.select_dtypes(include='category').columns:
-    X_train[col] = X_train[col].cat.codes
-    X_val[col] = X_val[col].cat.codes
-    X_test[col] = X_test[col].cat.codes
+for col in x_train.select_dtypes(include='category').columns:
+    x_train[col] = x_train[col].cat.codes
+    x_val[col] = x_val[col].cat.codes
+    x_test[col] = x_test[col].cat.codes
 
-dtrain = xgb.DMatrix(X_train, label=y_train)
-dval = xgb.DMatrix(X_val, label=y_val)
-dtest = xgb.DMatrix(X_test)
+dtrain = xgb.DMatrix(x_train, label=y_train)
+dval = xgb.DMatrix(x_val, label=y_val)
+dtest = xgb.DMatrix(x_test)
 
 params = {
     'objective': 'reg:squarederror',
@@ -53,6 +54,8 @@ model = xgb.train(
     verbose_eval=100
 )
 
+joblib.dump(model, str(Paths.Models.xgboost / 'fe_xgb_model.joblib'))
+
 # 3. 验证集评估
 y_pred_val = model.predict(dval)
 mse = mean_squared_error(y_val, y_pred_val)
@@ -71,13 +74,13 @@ importance_df = pd.DataFrame({
     'feature': list(importance.keys()),
     'importance': list(importance.values())
 }).sort_values('importance', ascending=False)
-importance_df.to_csv('fe_xgb_feature_importance.csv', index=False)
+importance_df.to_csv(str(Paths.Results.importance / 'fe_xgb_feature_importance.csv'), index=False)
 
 plt.figure(figsize=(14, 8))
 sns.barplot(x='importance', y='feature', data=importance_df.head(20))
 plt.title('XGBoost Top 20 特征重要性')
 plt.tight_layout()
-plt.savefig('fe_xgb_feature_importance.png')
+plt.savefig(str(Paths.Results.importance / 'fe_xgb_feature_importance.png'))
 plt.close()
 
 # 5. 预测测试集并保存
@@ -86,5 +89,5 @@ submit_data = pd.DataFrame({
     'SaleID': test_ids,
     'price': y_pred_test
 })
-submit_data.to_csv('fe_xgb_submit_result.csv', index=False)
-print("预测结果已保存到 fe_xgb_submit_result.csv") 
+submit_data.to_csv(str(Paths.Models.xgboost / 'fe_xgb_submit_result.csv'), index=False)
+print("预测结果已保存到 fe_xgb_submit_result.csv")

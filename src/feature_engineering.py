@@ -3,6 +3,7 @@
 二手车价格预测 - 高级特征工程与CatBoost建模
 """
 
+from config import Paths
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +16,7 @@ import datetime
 import warnings
 
 warnings.filterwarnings("ignore")
-from config import Paths
+
 
 # 设置中文显示
 plt.rcParams["font.sans-serif"] = ["SimHei"]

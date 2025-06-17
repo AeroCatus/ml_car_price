@@ -3,6 +3,7 @@
 二手车价格预测 - CatBoost模型
 """
 
+from config import Paths
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ import joblib
 import warnings
 
 warnings.filterwarnings("ignore")
-from config import Paths
+
 
 # 设置中文显示
 plt.rcParams["font.sans-serif"] = ["SimHei"]
